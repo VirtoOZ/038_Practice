@@ -805,3 +805,20 @@ a {
 	width: 280px;
 	margin: 0 auto;
 }
+.show {
+	display: block;
+}
+.hide {
+	display: none;
+}
+.fade {
+	animation: fade 1.5s;
+	@keyframes fade {
+		0% {
+			opacity: 0.1;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+}
