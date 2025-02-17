@@ -122,4 +122,38 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	}
 	setClock('.timer', dedLine);
 	//<TIMER>=================================
+
+	//<MODAL>=================================
+	const modal = document.querySelector('.modal');
+	const btns = document.querySelectorAll('[data-modal]');
+	const btnsClose = document.querySelector('[data-close]');
+
+	// function statusModal(element) {
+	// 	const dispStatus = window.getComputedStyle(element);
+	// 	if (dispStatus.display == 'none') {
+	// 		showModal(element);
+	// 	}
+	// 	else hideModal(element);
+	// }
+
+	function showModal(element) {
+		element.classList.add('show', 'fade');
+		element.classList.remove('hide');
+	}
+	function hideModal(element) {
+		element.classList.remove('show', 'fade');
+		element.classList.add('hide');
+	}
+
+	window.addEventListener("click", (e) => {
+		btns.forEach(el => {
+			if (e.target == el) {
+				showModal(modal);
+			}
+		});
+		if (modal.classList.contains('show') && e.target == btnsClose || e.target == modal) {
+			hideModal(modal);
+		}
+	});
+	//</MODAL>=================================
 });
