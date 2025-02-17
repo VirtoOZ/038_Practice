@@ -139,21 +139,28 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	function showModal(element) {
 		element.classList.add('show', 'fade');
 		element.classList.remove('hide');
+		document.body.style.overflow = 'hidden';
 	}
 	function hideModal(element) {
 		element.classList.remove('show', 'fade');
 		element.classList.add('hide');
+		document.body.style.overflow = '';
 	}
-
-	window.addEventListener("click", (e) => {
+	document.addEventListener("click", (e) => {
+		const et = e.target;
 		btns.forEach(el => {
-			if (e.target == el) {
+			if (et == el) {
 				showModal(modal);
 			}
 		});
-		if (modal.classList.contains('show') && e.target == btnsClose || e.target == modal) {
+		if (modal.classList.contains('show') && et == modal || et == btnsClose) {
 			hideModal(modal);
 		}
 	});
+	document.addEventListener("keydown", (e) => {
+		if (e.code == 'Escape' && modal.classList.contains('show')) {
+			hideModal(modal);
+		}
+	},);
 	//</MODAL>=================================
 });
