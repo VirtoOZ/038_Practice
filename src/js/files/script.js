@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	// 	else hideModal(element);
 	// }
 
-	const modalTimerId = setTimeout(showModal, 15000);
+	// const modalTimerId = setTimeout(showModal, 15000);
 
 	function showModal(element = modal) {
 		element.classList.add('show', 'fade');
@@ -178,6 +178,22 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			window.removeEventListener("scroll", showModalByScroll);
 		}
 	}
-	window.addEventListener("scroll", showModalByScroll);
+	// window.addEventListener("scroll", showModalByScroll);
 	//</SCROLL>=================================
+
+	//<FORMS>=================================
+	const forms = document.querySelectorAll('form');
+
+	const messages = {
+		vaiting: 'Подождите...',
+		sucsess: 'Данные успешно отправлены!',
+		failure: 'Что-то пошло не так!',
+	}
+
+	document.addEventListener('click', e => {
+		if (e.target.localName == 'form') {
+
+		}
+	})
+	//</FORMS>=================================
 });
