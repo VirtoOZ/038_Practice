@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	// 	else hideModal(element);
 	// }
 
-	// const modalTimerId = setTimeout(showModal, 15000);
+	const modalTimerId = setTimeout(showModal, 15000);
 
 	function showModal(element = modal) {
 		element.classList.add('show', 'fade');
@@ -152,12 +152,10 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	}
 	document.addEventListener("click", (e) => {
 		const et = e.target;
-		btns.forEach(el => {
-			if (et == el) {
-				showModal();
-			}
-		});
-		if (modal.classList.contains('show') && et == modal || et == btnsClose) {
+		if (et.closest('.btn')) {
+			showModal();
+		}
+		if (modal.classList.contains('show') && et.closest('.modal__close') || et == btnsClose) {
 			hideModal();
 		}
 	});
@@ -178,22 +176,80 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			window.removeEventListener("scroll", showModalByScroll);
 		}
 	}
-	// window.addEventListener("scroll", showModalByScroll);
+	window.addEventListener("scroll", showModalByScroll);
 	//</SCROLL>=================================
 
 	//<FORMS>=================================
 	const forms = document.querySelectorAll('form');
 
 	const messages = {
-		vaiting: 'Подождите...',
+		vaiting: 'img/form/spinner.svg',
 		sucsess: 'Данные успешно отправлены!',
 		failure: 'Что-то пошло не так!',
-	}
+	};
 
-	document.addEventListener('click', e => {
+	document.addEventListener('submit', e => {
+		e.preventDefault();
+
+		const statusMessage = document.createElement('img');
+		// statusMessage.classList.add('status_vait');
+		statusMessage.src = messages.vaiting;
+		statusMessage.style.cssText = `display: block; margin: 0 auto;`;
+		e.target.insertAdjacentElement('beforeend', statusMessage);
+
+
 		if (e.target.localName == 'form') {
+			const request = new XMLHttpRequest();
+			request.open('POST', 'server.php', true, 'vscode', '0300');
+			// request.setRequestHeader('Content-Type', 'multipart/form-data', 'charset=utf8');
+			let formData = new FormData(e.target);
+			request.send(formData);
 
+			request.addEventListener('load', () => {
+				if (request.status === 200) {
+					console.log(request.response);
+					// statusMessage.textContent = messages.sucsess;
+					showRequestModal(messages.sucsess);
+					// setTimeout(() => {
+					e.target.reset();
+					// 	setTimeout(() => {
+					// statusMessage.remove();
+					// 		setTimeout(() => {
+					// 			hideModal();
+					// 		}, 1000);
+					// 	}, 1000);
+					// }, 1000);
+				} else {
+					// statusMessage.textContent = messages.failure;
+					// statusMessage.classList.remove('status_vait');
+					// statusMessage.classList.add('status_bad');
+					// hideModal();
+					showRequestModal(messages.failure);
+					// statusMessage.remove();
+					// e.target.reset();
+				}
+			})
 		}
+		//<054>=================================
+		function showRequestModal(messages) {
+			const modalDialog = document.querySelector('.modal__dialog');
+			modalDialog.classList.add('hide');
+			const modalNewDialog = document.createElement('div');
+			modalNewDialog.classList.add('modal__dialog');
+			modalNewDialog.innerHTML = `
+		<div class="modal__content">
+			<div data-close class="modal__close">×</div>
+			<div class="modal__title">${messages}</div>
+		</div>`;
+			modalDialog.insertAdjacentElement('afterEnd', modalNewDialog);
+			setTimeout(() => {
+				hideModal();
+				modalDialog.classList.remove('hide');
+				modalNewDialog.remove();
+				statusMessage.remove();
+			}, 3000);
+		}
+		//<054>=================================
 	})
 	//</FORMS>=================================
 });

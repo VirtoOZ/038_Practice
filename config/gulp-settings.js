@@ -32,7 +32,7 @@ export const pathtofiles = {
 	rootFolder: rootFolder,
 	srcFolder: srcFolder,
 	// Путь к нужной папке на удаленном сервере.
-	ftp: `${rootFolder}`,
+	ftp: `/`,
 	// ftp: ``
 	//Пример: загрузить в папку 2022 далее в папку с названием проекта
 	// ftp: `2022/${rootFolder}`
@@ -41,7 +41,8 @@ export const pathtofiles = {
 // Настройка FTP соединения
 export const configFTP = {
 	host: "192.168.238.128", // Адрес FTP сервера
-	user: "VirtoOZ", // Имя пользователя
+	user: "vscode", // Имя пользователя
 	password: "0300", // Пароль
-	parallel: 5 // Кол-во одновременных потоков
+	parallel: 1,// Кол-во одновременных потоков
+	maxConnections: 1,
 }
