@@ -140,22 +140,21 @@ document.addEventListener("DOMContentLoaded", (e) => {
 
 	function showModal(element = modal) {
 		element.classList.add('show', 'fade');
-		element.classList.remove('hide');
+		// element.classList.remove('hide');
 		document.body.style.overflow = 'hidden';
 		clearInterval(modalTimerId);
 
 	}
 	function hideModal(element = modal) {
 		element.classList.remove('show', 'fade');
-		element.classList.add('hide');
 		document.body.style.overflow = '';
 	}
 	document.addEventListener("click", (e) => {
 		const et = e.target;
-		if (et.closest('.btn')) {
+		if (!!et.closest('[data-modal]')) {
 			showModal();
 		}
-		if (modal.classList.contains('show') && et.closest('.modal__close') || et == btnsClose) {
+		if (modal.classList.contains('show') && et == modal || et.classList.contains('modal__close')) {
 			hideModal();
 		}
 	});
@@ -192,46 +191,38 @@ document.addEventListener("DOMContentLoaded", (e) => {
 		e.preventDefault();
 
 		const statusMessage = document.createElement('img');
-		// statusMessage.classList.add('status_vait');
 		statusMessage.src = messages.vaiting;
 		statusMessage.style.cssText = `display: block; margin: 0 auto;`;
-		e.target.insertAdjacentElement('beforeend', statusMessage);
-
+		e.target.insertAdjacentElement('afterend', statusMessage);
 
 		if (e.target.localName == 'form') {
 			const request = new XMLHttpRequest();
 			request.open('POST', 'server.php', true, 'vscode', '0300');
+			request.setRequestHeader('Content-Type', 'aplication/json', 'charset=utf8');
 			// request.setRequestHeader('Content-Type', 'multipart/form-data', 'charset=utf8');
 			let formData = new FormData(e.target);
-			request.send(formData);
 
+			// преобразовать в json
+			const object = {};
+			formData.forEach((value, key) => {
+				object[key] = value;
+			});
+			const json = JSON.stringify(object);
+
+			request.send(json);
 			request.addEventListener('load', () => {
 				if (request.status === 200) {
 					console.log(request.response);
-					// statusMessage.textContent = messages.sucsess;
 					showRequestModal(messages.sucsess);
-					// setTimeout(() => {
 					e.target.reset();
-					// 	setTimeout(() => {
-					// statusMessage.remove();
-					// 		setTimeout(() => {
-					// 			hideModal();
-					// 		}, 1000);
-					// 	}, 1000);
-					// }, 1000);
 				} else {
-					// statusMessage.textContent = messages.failure;
-					// statusMessage.classList.remove('status_vait');
-					// statusMessage.classList.add('status_bad');
-					// hideModal();
 					showRequestModal(messages.failure);
-					// statusMessage.remove();
-					// e.target.reset();
 				}
 			})
 		}
 		//<054>=================================
 		function showRequestModal(messages) {
+			showModal();
 			const modalDialog = document.querySelector('.modal__dialog');
 			modalDialog.classList.add('hide');
 			const modalNewDialog = document.createElement('div');
