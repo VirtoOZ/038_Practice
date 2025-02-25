@@ -196,10 +196,14 @@ document.addEventListener("DOMContentLoaded", (e) => {
 		e.target.insertAdjacentElement('afterend', statusMessage);
 
 		if (e.target.localName == 'form') {
+
+			/* Запрос c помощью XMLHttpRequest
 			const request = new XMLHttpRequest();
 			request.open('POST', 'server.php', true, 'vscode', '0300');
 			request.setRequestHeader('Content-Type', 'aplication/json', 'charset=utf8');
-			// request.setRequestHeader('Content-Type', 'multipart/form-data', 'charset=utf8');
+			request.setRequestHeader('Content-Type', 'multipart/form-data', 'charset=utf8');
+			*/
+
 			let formData = new FormData(e.target);
 
 			// преобразовать в json
@@ -207,8 +211,31 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			formData.forEach((value, key) => {
 				object[key] = value;
 			});
-			const json = JSON.stringify(object);
 
+			//<PROMISE + FETCH>=================================
+			// Fetch запрос POST
+			fetch('files/server.php', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'aplication/json',
+				},
+				body: JSON.stringify(object),
+			})
+				.then(data => data.text())
+				.then(data => {
+					console.log(data);
+					showRequestModal(messages.sucsess);
+					statusMessage.remove();
+				})
+				.catch(() => {
+					showRequestModal(messages.failure);
+				})
+				.finally(() => {
+					e.target.reset();
+				});
+			//</PROMISE + FETCH>=================================
+
+			/*  Запрос c помощью XMLHttpRequest()
 			request.send(json);
 			request.addEventListener('load', () => {
 				if (request.status === 200) {
@@ -218,7 +245,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
 				} else {
 					showRequestModal(messages.failure);
 				}
-			})
+			}) */
 		}
 		//<054>=================================
 		function showRequestModal(messages) {
@@ -227,20 +254,24 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			modalDialog.classList.add('hide');
 			const modalNewDialog = document.createElement('div');
 			modalNewDialog.classList.add('modal__dialog');
-			modalNewDialog.innerHTML = `
-		<div class="modal__content">
-			<div data-close class="modal__close">×</div>
-			<div class="modal__title">${messages}</div>
-		</div>`;
+			modalNewDialog.innerHTML =
+				`<div class="modal__content">
+					<div data-close class="modal__close">×</div>
+					<div class="modal__title">${messages}</div>
+				</div>`;
 			modalDialog.insertAdjacentElement('afterEnd', modalNewDialog);
 			setTimeout(() => {
 				hideModal();
 				modalDialog.classList.remove('hide');
 				modalNewDialog.remove();
-				statusMessage.remove();
 			}, 3000);
 		}
 		//<054>=================================
 	})
 	//</FORMS>=================================
+
+	// npx json-server --watch src/files/db.json
+	fetch('http://localhost:3000/menu')
+		.then(data => data.json())
+		.then(data => console.log(data));
 });
