@@ -68,6 +68,64 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	showTabs();
 	//</TABS>=================================
 
+	//<CARDS>=================================
+	class Card {
+		constructor(img, altimg, title, descr, price) {
+			this.img = img;
+			this.altimg = altimg;
+			this.title = title;
+			this.descr = descr;
+			this.price = price;
+			this.valuta;
+			this.place = document.querySelector('.menu .container');
+			this.kurs = 60;
+			this.isUSD = true;
+			this.converToUsd();
+		}
+		converToUsd() {
+			if (!this.isUSD) {
+				this.price;
+				this.valuta = 'usd/День'
+			} else {
+				this.valuta = 'руб/День'
+				this.price *= this.kurs;
+			}
+		}
+		render() {
+			const element = document.createElement('div');
+			element.classList.add('menu__item');
+			element.innerHTML =
+				`<img src="${this.img}" alt="${this.altimg}">
+				<h3 class="menu__item-subtitle">${this.title}</h3>
+				<div class="menu__item-descr">${this.descr}</div>
+				<div class="menu__item-divider"></div>
+				<div class="menu__item-price">
+					<div class="menu__item-cost">Цена:</div>
+					<div class="menu__item-total"><span>${this.price}</span> ${this.valuta}</div>
+				</div>`;
+			this.place.append(element);
+		}
+	}
+
+	const getResource = async (url) => {
+		const res = await fetch(url)
+		if (!res.ok) {
+			throw new Error(`Couldn't fetch ${url}, status: ${res.status}`);
+		}
+		return await res.json();
+	};
+	getResource('http://localhost:3000/menu')
+		.then(data => {
+			// в таком случае правильным решением будет воспользоваться деструктуризацией
+			data.forEach(({ img, altimg, title, descr, price }) => {
+				new Card(img, altimg, title, descr, price).render();
+			});
+		});
+	// constructor(img, altimg, title, descr, price, isUSD = true) {
+
+
+	//</CARDS>=================================
+
 	//<TIMER>=================================
 	const dedLine = '2025-04-07';
 
@@ -207,21 +265,33 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			let formData = new FormData(e.target);
 
 			// преобразовать в json
+			/* // перебором
 			const object = {};
-			formData.forEach((value, key) => {
-				object[key] = value;
-			});
+				formData.forEach((value, key) => {
+					object[key] = value;
+				}); */
+
+			// более эстетическое решение chein c помощью entries 
+			const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
 			//<PROMISE + FETCH>=================================
 			// Fetch запрос POST
-			fetch('files/server.php', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'aplication/json',
-				},
-				body: JSON.stringify(object),
-			})
-				.then(data => data.text())
+			const postData = async (url, data) => {
+				// важно fetch помещать в переменную, т.к. функция будет возвращать promise
+				const result = await fetch(url, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'aplication/json',
+					},
+					body: data,
+				})
+				// вернётся promise в jsone перевод в json может потребовать времени, 
+				// по этому нужен await (дождаться когда произойжёт действие)
+				return await result.json();
+			};
+			// после вызова нельзя стваить ; тк вызов возвращает 
+			// promise который далее отбрабатывается цепочкой then
+			postData('http://localhost:3000/requests', json)
 				.then(data => {
 					console.log(data);
 					showRequestModal(messages.sucsess);
@@ -269,9 +339,4 @@ document.addEventListener("DOMContentLoaded", (e) => {
 		//<054>=================================
 	})
 	//</FORMS>=================================
-
-	// npx json-server --watch src/files/db.json
-	fetch('http://localhost:3000/menu')
-		.then(data => data.json())
-		.then(data => console.log(data));
 });
