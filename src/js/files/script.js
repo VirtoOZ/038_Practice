@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	}
 
 	// показать контент и акивный заголовок таба 
+
 	function showTabs(i = 0) {
 		tabContents[i].classList.add('show', 'fade');
 		tabContents[i].classList.remove('hide');
@@ -41,13 +42,15 @@ document.addEventListener("DOMContentLoaded", (e) => {
 
 	// мой вариант
 	tabHeaderItem.addEventListener("click", (e) => {
-		const et = e.target;
-		tabHeaderItems.forEach((el, i) => {
-			if (el == et) {
-				hideTabs();
-				showTabs(i);
-			}
-		});
+		const et = e.target.closest('.tabheader__item');
+		if (et) {
+			tabHeaderItems.forEach((el, i) => {
+				if (el == et) {
+					hideTabs();
+					showTabs(i);
+				}
+			});
+		}
 	});
 
 	// вариант из урока
@@ -69,6 +72,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	//</TABS>=================================
 
 	//<CARDS>=================================
+	// Конструктор карточек
 	class Card {
 		constructor(img, altimg, title, descr, price) {
 			this.img = img;
@@ -107,6 +111,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
 		}
 	}
 
+	// GET запрос данных JSON для постоения карточек 
 	const getResource = async (url) => {
 		const res = await fetch(url)
 		if (!res.ok) {
@@ -114,6 +119,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
 		}
 		return await res.json();
 	};
+
 	getResource('http://localhost:3000/menu')
 		.then(data => {
 			// в таком случае правильным решением будет воспользоваться деструктуризацией
@@ -121,9 +127,6 @@ document.addEventListener("DOMContentLoaded", (e) => {
 				new Card(img, altimg, title, descr, price).render();
 			});
 		});
-	// constructor(img, altimg, title, descr, price, isUSD = true) {
-
-
 	//</CARDS>=================================
 
 	//<TIMER>=================================
@@ -183,8 +186,6 @@ document.addEventListener("DOMContentLoaded", (e) => {
 
 	//<MODAL>=================================
 	const modal = document.querySelector('.modal');
-	const btns = document.querySelectorAll('[data-modal]');
-	const btnsClose = document.querySelector('[data-close]');
 
 	// function statusModal(element) {
 	// 	const dispStatus = window.getComputedStyle(element);
@@ -194,13 +195,12 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	// 	else hideModal(element);
 	// }
 
-	const modalTimerId = setTimeout(showModal, 15000);
+	// const modalTimerId = setTimeout(showModal, 15000);
 
 	function showModal(element = modal) {
 		element.classList.add('show', 'fade');
-		// element.classList.remove('hide');
 		document.body.style.overflow = 'hidden';
-		clearInterval(modalTimerId);
+		// clearInterval(modalTimerId);
 
 	}
 	function hideModal(element = modal) {
@@ -209,10 +209,10 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	}
 	document.addEventListener("click", (e) => {
 		const et = e.target;
-		if (!!et.closest('[data-modal]')) {
+		if (et.closest('[data-modal]')) {
 			showModal();
 		}
-		if (modal.classList.contains('show') && et == modal || et.classList.contains('modal__close')) {
+		if (modal.classList.contains('show') && et.closest('.modal') || et.classList.contains('modal__close')) {
 			hideModal();
 		}
 	});
@@ -339,4 +339,56 @@ document.addEventListener("DOMContentLoaded", (e) => {
 		//<054>=================================
 	})
 	//</FORMS>=================================
+
+	//<SLIDER>=================================
+	const slider = document.querySelector('.offer__slider');
+	const sliderCounter = slider.querySelector('.offer__slider-counter');
+	const sliderCurrDigits = slider.querySelector('#current');
+	const sliderTotalDigits = slider.querySelector('#total');
+	const slides = slider.querySelectorAll('.offer__slide');
+	let currSlide = 0;
+	const total = slides.length;
+
+	// Первоначальное выставление текущего слайда
+	function initSlider() {
+		sliderTotalDigits.innerHTML = addZero(slides.length);
+		computeCurrent();
+		slides[currSlide].classList.add('active');
+	}
+	initSlider();
+
+	// Обработка и скрытие не текущего слайда
+	function showOrHideSlide() {
+		slides.forEach((el, i) => {
+			if (i == currSlide) {
+				el.classList.add('active');
+			} else el.classList.remove('active');
+		})
+	}
+
+	// Корректировка диапазона
+	function computeCurrent() {
+		currSlide > total - 1 ? currSlide = 0 : '';
+		currSlide < 0 ? currSlide = total - 1 : '';
+		sliderCurrDigits.textContent = addZero(currSlide + 1);
+	}
+
+	// Делигирование и навешевание собитий на кнопки
+	sliderCounter.addEventListener('click', (e) => {
+		const et = e.target;
+		// отлавливанием нажатие next
+		if (et.closest('.offer__slider-next')) {
+			currSlide++;
+			computeCurrent();
+			showOrHideSlide();
+		}
+		// отлавливанием нажатие prev
+		if (et.closest('.offer__slider-prev')) {
+			currSlide--;
+			computeCurrent();
+			showOrHideSlide();
+		}
+	})
+
+	//</SLIDER>=================================
 });
