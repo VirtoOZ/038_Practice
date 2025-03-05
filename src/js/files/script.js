@@ -120,13 +120,13 @@ document.addEventListener("DOMContentLoaded", (e) => {
 		return await res.json();
 	};
 
-	// getResource('http://localhost:3000/menu')
-	// 	.then(data => {
-	// 		// в таком случае правильным решением будет воспользоваться деструктуризацией
-	// 		data.forEach(({ img, altimg, title, descr, price }) => {
-	// 			new Card(img, altimg, title, descr, price).render();
-	// 		});
-	// 	});
+	getResource('http://localhost:3000/menu')
+		.then(data => {
+			// в таком случае правильным решением будет воспользоваться деструктуризацией
+			data.forEach(({ img, altimg, title, descr, price }) => {
+				new Card(img, altimg, title, descr, price).render();
+			});
+		});
 	//</CARDS>=================================
 
 	//<TIMER>=================================
@@ -291,18 +291,18 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			};
 			// после вызова нельзя стваить ; тк вызов возвращает 
 			// promise который далее отбрабатывается цепочкой then
-			// postData('http://localhost:3000/requests', json)
-			// 	.then(data => {
-			// 		console.log(data);
-			// 		showRequestModal(messages.sucsess);
-			// 		statusMessage.remove();
-			// 	})
-			// 	.catch(() => {
-			// 		showRequestModal(messages.failure);
-			// 	})
-			// 	.finally(() => {
-			// 		e.target.reset();
-			// 	});
+			postData('http://localhost:3000/requests', json)
+				.then(data => {
+					console.log(data);
+					showRequestModal(messages.sucsess);
+					statusMessage.remove();
+				})
+				.catch(() => {
+					showRequestModal(messages.failure);
+				})
+				.finally(() => {
+					e.target.reset();
+				});
 			//</PROMISE + FETCH>=================================
 
 			/*  Запрос c помощью XMLHttpRequest()
@@ -448,3 +448,4 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	 */
 	//</SLIDER>=================================
 });
+// npx json-server src/files/db.json
