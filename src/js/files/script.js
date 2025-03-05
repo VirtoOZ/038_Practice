@@ -120,13 +120,13 @@ document.addEventListener("DOMContentLoaded", (e) => {
 		return await res.json();
 	};
 
-	getResource('http://localhost:3000/menu')
-		.then(data => {
-			// в таком случае правильным решением будет воспользоваться деструктуризацией
-			data.forEach(({ img, altimg, title, descr, price }) => {
-				new Card(img, altimg, title, descr, price).render();
-			});
-		});
+	// getResource('http://localhost:3000/menu')
+	// 	.then(data => {
+	// 		// в таком случае правильным решением будет воспользоваться деструктуризацией
+	// 		data.forEach(({ img, altimg, title, descr, price }) => {
+	// 			new Card(img, altimg, title, descr, price).render();
+	// 		});
+	// 	});
 	//</CARDS>=================================
 
 	//<TIMER>=================================
@@ -291,18 +291,18 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			};
 			// после вызова нельзя стваить ; тк вызов возвращает 
 			// promise который далее отбрабатывается цепочкой then
-			postData('http://localhost:3000/requests', json)
-				.then(data => {
-					console.log(data);
-					showRequestModal(messages.sucsess);
-					statusMessage.remove();
-				})
-				.catch(() => {
-					showRequestModal(messages.failure);
-				})
-				.finally(() => {
-					e.target.reset();
-				});
+			// postData('http://localhost:3000/requests', json)
+			// 	.then(data => {
+			// 		console.log(data);
+			// 		showRequestModal(messages.sucsess);
+			// 		statusMessage.remove();
+			// 	})
+			// 	.catch(() => {
+			// 		showRequestModal(messages.failure);
+			// 	})
+			// 	.finally(() => {
+			// 		e.target.reset();
+			// 	});
 			//</PROMISE + FETCH>=================================
 
 			/*  Запрос c помощью XMLHttpRequest()
@@ -341,32 +341,35 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	//</FORMS>=================================
 
 	//<SLIDER>=================================
-	const slider = document.querySelector('.offer__slider');
-	const sliderCounter = slider.querySelector('.offer__slider-counter');
-	const sliderCurrDigits = slider.querySelector('#current');
-	const sliderTotalDigits = slider.querySelector('#total');
-	const slides = slider.querySelectorAll('.offer__slide');
-	let currSlide = 0;
-	const total = slides.length;
+	const slider = document.querySelector('.offer__slider'),
+		sliderCounter = slider.querySelector('.offer__slider-counter'),
+		sliderCurrDigits = slider.querySelector('#current'),
+		sliderTotalDigits = slider.querySelector('#total'),
+		slides = slider.querySelectorAll('.offer__slide'),
+		total = slides.length,
+		sliderWrapper = slider.querySelector('.offer__slider-wrapper'),
+		sliderBody = slider.querySelector('.offer__slider-body'),
+		slideWidth = parseInt(window.getComputedStyle(sliderWrapper).width);
+	let currSlide = 0,
+		currentWidth = 0;
+
+	//<СЛАЙДЕР C СДВИГОМ>=================================
+	sliderBody.style.cssText = `
+		width: ${slideWidth * total}px;
+		transition: transform 0.3s ease 0s;
+	`;
+
+	const shiftSlide = (position, sign = '') => sliderBody.style.transform = `translateX(${sign}${position}px)`;
+	shiftSlide(currentWidth);
 
 	// Первоначальное выставление текущего слайда
 	function initSlider() {
 		sliderTotalDigits.innerHTML = addZero(slides.length);
 		computeCurrent();
-		slides[currSlide].classList.add('active');
 	}
 	initSlider();
 
-	// Обработка и скрытие не текущего слайда
-	function showOrHideSlide() {
-		slides.forEach((el, i) => {
-			if (i == currSlide) {
-				el.classList.add('active');
-			} else el.classList.remove('active');
-		})
-	}
-
-	// Корректировка диапазона
+	// Корректировка диапазона пагинации
 	function computeCurrent() {
 		currSlide > total - 1 ? currSlide = 0 : '';
 		currSlide < 0 ? currSlide = total - 1 : '';
@@ -380,15 +383,68 @@ document.addEventListener("DOMContentLoaded", (e) => {
 		if (et.closest('.offer__slider-next')) {
 			currSlide++;
 			computeCurrent();
-			showOrHideSlide();
+			currentWidth += slideWidth;
+			if (currentWidth == slideWidth * total) {
+				currentWidth = 0;
+				shiftSlide(currentWidth);
+			}
+			shiftSlide(currentWidth, '-');
 		}
-		// отлавливанием нажатие prev
 		if (et.closest('.offer__slider-prev')) {
 			currSlide--;
 			computeCurrent();
-			showOrHideSlide();
+			currentWidth -= slideWidth;
+			if (currentWidth < 0) {
+				currentWidth = slideWidth * total - slideWidth;
+				shiftSlide(currentWidth);
+			}
+			shiftSlide(currentWidth, '-');
 		}
-	})
 
+
+	})
+	/* //<ПРОСТОЙ ВАРИАНТ СЛАЙДЕРА>=================================
+		// Первоначальное выставление текущего слайда
+		function initSlider() {
+			sliderTotalDigits.innerHTML = addZero(slides.length);
+			computeCurrent();
+			slides[currSlide].classList.add('active');
+		}
+		initSlider();
+	
+		// Обработка и скрытие не текущего слайда
+		function showOrHideSlide() {
+			slides.forEach((el, i) => {
+				if (i == currSlide) {
+					el.classList.add('active');
+				} else el.classList.remove('active');
+			})
+		}
+	
+		// Корректировка диапазона
+		function computeCurrent() {
+			currSlide > total - 1 ? currSlide = 0 : '';
+			currSlide < 0 ? currSlide = total - 1 : '';
+			sliderCurrDigits.textContent = addZero(currSlide + 1);
+		}
+	
+		// Делигирование и навешевание собитий на кнопки
+		sliderCounter.addEventListener('click', (e) => {
+			const et = e.target;
+			// отлавливанием нажатие next
+			if (et.closest('.offer__slider-next')) {
+				currSlide++;
+				computeCurrent();
+				showOrHideSlide();
+			}
+			// отлавливанием нажатие prev
+			if (et.closest('.offer__slider-prev')) {
+				currSlide--;
+				computeCurrent();
+				showOrHideSlide();
+			}
+		})
+	//<ПРОСТОЙ ВАРИАНТ СЛАЙДЕРА>=================================// 
+	 */
 	//</SLIDER>=================================
 });
