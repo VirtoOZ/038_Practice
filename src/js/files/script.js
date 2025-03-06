@@ -342,16 +342,18 @@ document.addEventListener("DOMContentLoaded", (e) => {
 
 	//<SLIDER>=================================
 	const slider = document.querySelector('.offer__slider'),
-		sliderCounter = slider.querySelector('.offer__slider-counter'),
 		sliderCurrDigits = slider.querySelector('#current'),
 		sliderTotalDigits = slider.querySelector('#total'),
 		slides = slider.querySelectorAll('.offer__slide'),
 		total = slides.length,
 		sliderWrapper = slider.querySelector('.offer__slider-wrapper'),
 		sliderBody = slider.querySelector('.offer__slider-body'),
-		slideWidth = parseInt(window.getComputedStyle(sliderWrapper).width);
+		slideWidth = parseInt(window.getComputedStyle(sliderWrapper).width),
+		paginationBody = document.createElement('ol');
 	let currSlide = 0,
 		currentWidth = 0;
+
+
 
 	//<СЛАЙДЕР C СДВИГОМ>=================================
 	sliderBody.style.cssText = `
@@ -366,6 +368,21 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	function initSlider() {
 		sliderTotalDigits.innerHTML = addZero(slides.length);
 		computeCurrent();
+
+		paginationBody.classList.add('carousel-indicators');
+		slider.style.position = 'relative';
+		slider.append(paginationBody);
+
+		slides.forEach((el, i) => {
+			const dot = document.createElement('li');
+			dot.classList.add('dot');
+			dot.setAttribute('data-slide-to', i);
+			paginationBody.append(dot);
+			// первоначально выделить активной пагинацию
+			if (i == currSlide) {
+				dot.style.opacity = 1;
+			}
+		});
 	}
 	initSlider();
 
@@ -377,7 +394,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
 	}
 
 	// Делигирование и навешевание собитий на кнопки
-	sliderCounter.addEventListener('click', (e) => {
+	slider.addEventListener('click', (e) => {
 		const et = e.target;
 		// отлавливанием нажатие next
 		if (et.closest('.offer__slider-next')) {
@@ -390,6 +407,7 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			}
 			shiftSlide(currentWidth, '-');
 		}
+		// отлавливанием нажатие prev
 		if (et.closest('.offer__slider-prev')) {
 			currSlide--;
 			computeCurrent();
@@ -400,8 +418,19 @@ document.addEventListener("DOMContentLoaded", (e) => {
 			}
 			shiftSlide(currentWidth, '-');
 		}
-
-
+		// отлавливанием нажатие на пагинацию
+		if (et.closest('.dot')) {
+			const dots = paginationBody.querySelectorAll('.dot');
+			dots.forEach(el => {
+				if (et == el) {
+					el.style.opacity = 1;
+					currSlide = +el.getAttribute('data-slide-to');
+					computeCurrent();
+					currentWidth = slideWidth * currSlide;
+					shiftSlide(currentWidth, '-');
+				} else el.style.opacity = 0.5;
+			});
+		}
 	})
 	/* //<ПРОСТОЙ ВАРИАНТ СЛАЙДЕРА>=================================
 		// Первоначальное выставление текущего слайда
